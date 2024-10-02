@@ -4,5 +4,5 @@ import time
 import threading
 from pyzbar import pyzbar
 
-
+print('good')
 

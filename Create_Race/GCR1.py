@@ -302,24 +302,27 @@ while True:
                         print('Get_Image3')
                         # 建立圆心集合
                         circle_center=np.zeros((3,2))
-                        # 这里保存的点分别是：红，绿，蓝
+                        # 这里保存的点坐标分别是：红，绿，蓝
                         for i in range(3):
                             print("i="+str(i))
                             circle_center[i,0],circle_center[i,1]=get_aim_circle(_circle_now,str(i+1))
                         # 此时我们获取到了三个物料的位置,开始定位
                         print("Get_Image4")
+                        # 开始计算相对误差
                         K_CJG,_=np.polyfit(circle_center[:,1], circle_center[:,0], 1)
-                        X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
+                        # X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
+                        X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
+                        # 这里X表示左右，Y表示上下
                         dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                         print("X_CJQ"+str(X_CJQ))
                         print("Y_CJQ"+str(Y_CJQ))
                         print(dis_error)
                         time.sleep(1)
                         # 发送定位指令
-                        send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
-                    # 记录下当前的位置
                     print("Begin_Put")
+                    # 记录下当前的位置
                     Location_Now=2
                     for goods_num in range(3):
                         print("goods_num="+str(goods_num))
@@ -329,11 +332,12 @@ while True:
                         else:
                             aim_color=QR2[goods_num]
                             put_order_LCJG='PUTL'+aim_color
+                        # 计算移动距离并发送命令
                         Move_Dis=int(aim_color)-Location_Now
                         Move_Color(Move_Dis)
                         Location_Now=int(aim_color)
                         '''
-                        这里是否需要定位暂时待定
+                        这里是否需要定位暂时待定，目前暂时不考虑
                         '''
                         if put_locate==1:
                             dis_error = 100
@@ -351,7 +355,7 @@ while True:
                                 X_CJQ,Y_CJQ=_circle_center[0]-320,_circle_center[1]-240
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                             pass
                         # 放置物料
                         send_order(put_order_LCJG)
@@ -367,8 +371,6 @@ while True:
                         Move_Dis=int(aim_color)-Location_Now
                         Move_Color(Move_Dis)
                         Location_Now=int(aim_color)
-                        # 取走物料
-                        send_order(catch_order_LCJG)
                         '''
                         这里是否需要定位暂时待定
                         '''
@@ -388,34 +390,47 @@ while True:
                                 X_CJQ,Y_CJQ=_circle_center[0]-320,_circle_center[1]-240
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                             pass
+                        # 取走物料
+                        send_order(catch_order_LCJG)
                         time.sleep(3)
 
                 # 此时是定位暂存区
                 if PBL[0:4]=='LZCQ':
-
                     # 首先进行校准
                     dis_error = 100
-                    while dis_error>10:
+                    while dis_error>20:
                         # 获取图像
                         get_image()
+                        cv2.imwrite('LZCQ.jpg',image)
+                        print('LZCQ_Get_Image')
                         # 突出目标颜色
                         # 站在车的视角,从左到右依次为蓝,绿,红
                         # 进行霍夫圆检测
                         _circle_now=Hough_Circle_get()
+                        print("begin_judge")
                         # 判定检测是否合理，否则重新检测
                         while len(_circle_now[0, :])!=3:
+                            # 获取图像
+                            get_image()
+                            print('LZCQ_Get_Image_ing')
                             _circle_now=Hough_Circle_get()
+                        cv2.imwrite('Hough_Circle_get.jpg',image)
+                        print('LZCQ_Get_Image3')
                         # 建立圆心集合
                         circle_center=np.zeros((3,2))
                         for i in range(3):
                             circle_center[i,0],circle_center[i,1]=get_aim_circle(_circle_now,str(i+1))
                         # 此时我们获取到了三个物料的位置,开始定位
                         K_CJG,_=np.polyfit(circle_center[:,1], circle_center[:,0], 1)
-                        X_CJQ,Y_CJQ=circle_center[1,1]-320,circle_center[1,0]-240
+                        X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
                         dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
-                        # 发送定位指令 
+                        print("X_CJQ"+str(X_CJQ))
+                        print("Y_CJQ"+str(Y_CJQ))
+                        print(dis_error)
+                        time.sleep(1)
+                        # 发送定位指令
                         send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     # 记录下当前的位置

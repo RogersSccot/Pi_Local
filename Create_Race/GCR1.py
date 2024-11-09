@@ -352,7 +352,7 @@ while True:
                                 _circle_center=get_aim_circle(_circle_now,aim_color)
                                 # 此时我们获取到了三个物料的位置,开始定位
                                 K_CJG=0
-                                X_CJQ,Y_CJQ=_circle_center[0]-320,_circle_center[1]-240
+                                X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
                                 send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
@@ -387,7 +387,7 @@ while True:
                                 _circle_center=get_aim_circle(_circle_now,aim_color)
                                 # 此时我们获取到了三个物料的位置,开始定位
                                 K_CJG=0
-                                X_CJQ,Y_CJQ=_circle_center[0]-320,_circle_center[1]-240
+                                X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
                                 send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
@@ -463,7 +463,7 @@ while True:
                                 _circle_center=get_aim_circle(_circle_now,aim_color)
                                 # 此时我们获取到了三个物料的位置,开始定位
                                 K_CJG=0
-                                X_CJQ,Y_CJQ=_circle_center[0]-320,_circle_center[1]-240
+                                X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
                                 send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))

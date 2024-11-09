@@ -154,7 +154,8 @@ def decode_qr_code(QR_img):
 # 判断在物料区当前视角中是否有是目标物料
 def Judge_WLQ_material(aim_image):
     _right_color=np.sum(aim_image[240:400,240:400])
-    return _right_color>900000
+    print(_right_color)
+    return _right_color>500000
 
 def Move_Color(dis1):
     if dis1>=0:
@@ -175,7 +176,7 @@ def Hough_Circle_get():
     circle = cv2.HoughCircles(_dst_img1, cv2.HOUGH_GRADIENT, 1, 150,param1=100, param2=70, minRadius=40, maxRadius=80)
     # 将检测结果绘制在图像上
     for i in circle[0, :]:  # 遍历矩阵的每一行的数据
-        if (i[2] > 50)&(i[2] < 80):
+        if (i[2] > 40)&(i[2] < 80):
             print(i[2])
             # 绘制圆形
             cv2.circle(_img1, (int(i[0]), int(i[1])), int(i[2]), (255, 0, 0), 10)
@@ -319,7 +320,7 @@ while True:
                         print(dis_error)
                         time.sleep(1)
                         # 发送定位指令
-                        send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     print("Begin_Put")
                     # 记录下当前的位置
@@ -355,7 +356,7 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                             pass
                         # 放置物料
                         send_order(put_order_LCJG)
@@ -390,7 +391,7 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('A'+order_deal(np.actan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                             pass
                         # 取走物料
                         send_order(catch_order_LCJG)

@@ -18,9 +18,16 @@ def get_BT():
         print('并行逻辑中PBL的值'+str(PBL))
         time.sleep(0.1)
 
+def send_order(order):
+    print('order='+order)
+    encoded_order = order.encode()
+    print(2)
+    ser_stm32.write(encoded_order)
+    print(1)
+
 t1 = threading.Thread(target=get_BT)
 t1.start()
 
-for i in range(1000):
-    print(1)
-    time.sleep(2)
+for i in range(10):
+    send_order('Good')
+    time.sleep(1)

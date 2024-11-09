@@ -3,7 +3,7 @@ import cv2
 import math
 import serial
 import time
-from Vision_Net import FastestDet
+# from Vision_Net import FastestDet
 from pyzbar import pyzbar
 
 '''
@@ -35,10 +35,12 @@ PI发给STM32:
 # 打开摄像头,占用内存大,不轻易运行
 # 摄像头0表示主摄像头,1表示侧摄像头
 capture=cv2.VideoCapture(0)
-capture_side=cv2.VideoCapture(1)
+
+# capture_side=cv2.VideoCapture(1)
+
 # 视觉神经网络先初始化,备用
-loo_global=np.zeros((640,480,3),dtype=np.uint8)
-deep = FastestDet(drawOutput=True)
+# loo_global=np.zeros((640,480,3),dtype=np.uint8)
+# deep = FastestDet(drawOutput=True)
 # 打开串口
 ser_32 = serial.Serial('/dev/ttyAMA0', 921600)
 #######################################################
@@ -46,7 +48,8 @@ ser_32 = serial.Serial('/dev/ttyAMA0', 921600)
 # 当前命令
 PBL = 0
 # 抓取循序(二维码读取结果)
-QR_code=0
+QR_results="213+231"
+QR1,QR2=QR_results.split('+')
 # 决定是否在放置时重复定位
 put_locate=0
 # 决定是否在抓取时重复定位
@@ -168,8 +171,18 @@ def Hough_Circle_get():
     # 进行中值滤波(这里我们略去)
     _dst_img1 = _img_gray1
     # 霍夫圆检测
-    circle = cv2.HoughCircles(_dst_img1, cv2.HOUGH_GRADIENT, 1, 150,param1=100, param2=70, minRadius=0, maxRadius=10000)
-    print(PBL+':'+circle)
+    print("HoughCircles")
+    circle = cv2.HoughCircles(_dst_img1, cv2.HOUGH_GRADIENT, 1, 150,param1=100, param2=70, minRadius=40, maxRadius=80)
+    # 将检测结果绘制在图像上
+    for i in circle[0, :]:  # 遍历矩阵的每一行的数据
+        if (i[2] > 50)&(i[2] < 80):
+            print(i[2])
+            # 绘制圆形
+            cv2.circle(_img1, (int(i[0]), int(i[1])), int(i[2]), (255, 0, 0), 10)
+            # 绘制圆心
+            cv2.circle(_img1, (int(i[0]), int(i[1])), 10, (255, 0, 0), -1)
+    cv2.imwrite('HoughCircles.jpg',_img1)
+    print(circle)
     return circle
 
 # 此时获得的结果分别为圆心的x,y坐标和半径
@@ -187,8 +200,9 @@ def get_aim_circle(circles,aim_color):
             _color_only_temp=find_aim_color(aim_color)
             circle_possible[j]=np.sum(_color_only_temp[top_left_corner[1]:bottom_right_corner[1], top_left_corner[0]:bottom_right_corner[0]])
     # 找到目标颜色的圆心
-    aim_circle=circles[0, np.argmax(circle_possible)]  
-    return aim_circle
+    aim_circle=circles[0, np.argmax(circle_possible)] 
+    print(aim_circle)
+    return aim_circle[0:2]
 
 #######################################################
 # 主控程序
@@ -207,10 +221,18 @@ while True:
             
             # 扫描二维码,并生成抓取顺序
             if PBL == 'SCANF':
-                _,QR_img=capture_side.read()
+                _,QR_img=capture.read()
                 # 获取二维码结果
                 QR_results = decode_qr_code(QR_img)
                 print("正在解码")
+                try_num=0
+                while ((len(QR_results)==0))&(try_num<50):
+                    # 获取失败
+                    print("获取失败")
+                    print(len(QR_results))
+                    try_num=try_num+1
+                    _,QR_img=capture.read()
+                    QR_results = decode_qr_code(QR_img)
                 if len(QR_results):
                     print("解码结果:")
                     QR_results=QR_results[0].data.decode("utf-8")
@@ -221,22 +243,31 @@ while True:
                 # 发送二维码结果给STM32
                 send_order('QR'+QR_results)
                 # 此时我们已获得二维码结果,分析抓取顺序
-                QR1,QR2=QR_code.split('+')
+                QR1,QR2=QR_results.split('+')
+                print(QR1)
+                print(QR2)
                 send_order('OKOK')
             
             # 此时是定位指令,必须
             if PBL[0]=='L':
+                print(PBL)
+                print(QR_results)
                 # 此时是定位物料区,开始判断物料颜色
                 if PBL[0:4]=='LWLQ':
+                    print('LWLQ')
                     goods_num=0
                     while goods_num<3:
                         # 刷新图像
                         get_image()
+                        cv2.imwrite('LWLQ.jpg',image)
+                        print('Get_Image')
                         # 获取物料颜色
                         if PBL[0:5]=='LWLQ1':
                             aim_color=QR1[goods_num]
+                            print("1"+str(aim_color))
                         else:
                             aim_color=QR2[goods_num]
+                            print("2"+str(aim_color))
                         # 判断目标位置中有无物料
                         if Judge_WLQ_material(find_aim_color(aim_color)):
                             # 抓取物料
@@ -251,30 +282,47 @@ while True:
                 if PBL[0:4]=='LCJG':
                     # 首先进行校准
                     dis_error = 100
-                    while dis_error>10:
+                    while dis_error>30:
                         # 获取图像
                         get_image()
+                        cv2.imwrite('LCJG.jpg',image)
+                        print('Get_Image')
                         # 突出目标颜色
                         # 站在车的视角,从左到右依次为蓝,绿,红
                         # 进行霍夫圆检测
                         _circle_now=Hough_Circle_get()
+                        print("begin_judge")
                         # 判定检测是否合理，否则重新检测
                         while len(_circle_now[0, :])!=3:
+                            # 获取图像
+                            get_image()
+                            print('Get_Image_ing')
                             _circle_now=Hough_Circle_get()
+                        cv2.imwrite('Hough_Circle_get.jpg',image)
+                        print('Get_Image3')
                         # 建立圆心集合
                         circle_center=np.zeros((3,2))
+                        # 这里保存的点分别是：红，绿，蓝
                         for i in range(3):
+                            print("i="+str(i))
                             circle_center[i,0],circle_center[i,1]=get_aim_circle(_circle_now,str(i+1))
                         # 此时我们获取到了三个物料的位置,开始定位
+                        print("Get_Image4")
                         K_CJG,_=np.polyfit(circle_center[:,1], circle_center[:,0], 1)
-                        X_CJQ,Y_CJQ=circle_center[1,1]-320,circle_center[1,0]-240
+                        X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
                         dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
+                        print("X_CJQ"+str(X_CJQ))
+                        print("Y_CJQ"+str(Y_CJQ))
+                        print(dis_error)
+                        time.sleep(1)
                         # 发送定位指令
                         send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     # 记录下当前的位置
+                    print("Begin_Put")
                     Location_Now=2
                     for goods_num in range(3):
+                        print("goods_num="+str(goods_num))
                         if PBL[0:5]=='LCJG1':
                             aim_color=QR1[goods_num]
                             put_order_LCJG='PUTL'+aim_color

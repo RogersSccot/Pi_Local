@@ -46,7 +46,7 @@ ser_32 = serial.Serial('/dev/ttyAMA0', 921600)
 #######################################################
 # 初始化全局变量
 # 当前命令
-PBL = 0
+PBL = "LCJG1"
 # 抓取循序(二维码读取结果)
 QR_results="213+231"
 QR1,QR2=QR_results.split('+')
@@ -272,7 +272,7 @@ while True:
                         # 判断目标位置中有无物料
                         if Judge_WLQ_material(find_aim_color(aim_color)):
                             # 抓取物料
-                            send_order('CATCH'+aim_color)
+                            send_order('CATH'+aim_color)
                             goods_num+=1
                         else:
                             time.sleep(0.1)
@@ -283,7 +283,8 @@ while True:
                 if PBL[0:4]=='LCJG':
                     # 首先进行校准
                     dis_error = 100
-                    while dis_error>30:
+                    # while dis_error>30:
+                    for i in range(1):
                         # 获取图像
                         get_image()
                         cv2.imwrite('LCJG.jpg',image)
@@ -320,7 +321,8 @@ while True:
                         print(dis_error)
                         time.sleep(1)
                         # 发送定位指令
-                        send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        time.sleep(10)
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     print("Begin_Put")
                     # 记录下当前的位置
@@ -342,7 +344,8 @@ while True:
                         '''
                         if put_locate==1:
                             dis_error = 100
-                            while dis_error>10:
+                            # while dis_error>10:
+                            for i in range(1):
                                 # 获取图像
                                 get_image()
                                 # 突出目标颜色
@@ -356,7 +359,9 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                # 等待车摆正
+                                time.sleep(3)
                             pass
                         # 放置物料
                         send_order(put_order_LCJG)
@@ -377,7 +382,8 @@ while True:
                         '''
                         if cat_locate==1:
                             dis_error = 100
-                            while dis_error>10:
+                            # while dis_error>10:
+                            for i in range(1):
                                 # 获取图像
                                 get_image()
                                 # 突出目标颜色
@@ -391,17 +397,18 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('A'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
                             pass
                         # 取走物料
                         send_order(catch_order_LCJG)
-                        time.sleep(3)
+                        time.sleep(10)
 
                 # 此时是定位暂存区
                 if PBL[0:4]=='LZCQ':
                     # 首先进行校准
                     dis_error = 100
-                    while dis_error>20:
+                    # while dis_error>20:
+                    for i in range(1):
                         # 获取图像
                         get_image()
                         cv2.imwrite('LZCQ.jpg',image)
@@ -453,7 +460,8 @@ while True:
                         '''
                         if put_locate==1:
                             dis_error = 100
-                            while dis_error>10:
+                            # while dis_error>10:
+                            for i in range(1):
                                 # 获取图像
                                 get_image()
                                 # 突出目标颜色

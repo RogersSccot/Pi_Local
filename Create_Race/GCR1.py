@@ -209,6 +209,9 @@ def get_aim_circle(circles,aim_color):
 # 主控程序
 #######################################################
 
+image=cv2.imread("/home/saluo/Desktop/good.jpg")
+Hough_Circle_get()
+
 # 外界大循环保证程序报错时依旧可以继续运行
 while True:
     try:
@@ -282,11 +285,14 @@ while True:
                 # 此时是定位加工区,这里放的时候不需要顺序,但是拿的时候需要顺序
                 if PBL[0:4]=='LCJG':
                     # 首先进行校准
+                    # time.sleep(15)
                     dis_error = 100
                     # while dis_error>30:
                     for i in range(1):
                         # 获取图像
-                        get_image()
+                        for j in range(30):
+                            print(j)
+                            get_image()
                         cv2.imwrite('LCJG.jpg',image)
                         print('Get_Image')
                         # 突出目标颜色
@@ -337,7 +343,9 @@ while True:
                             put_order_LCJG='PUTL'+aim_color
                         # 计算移动距离并发送命令
                         Move_Dis=int(aim_color)-Location_Now
-                        Move_Color(Move_Dis)
+                        Move_Color(Move_Dis)                        
+                        time.sleep(5)
+                        # 等待其移动到指定距离
                         Location_Now=int(aim_color)
                         '''
                         这里是否需要定位暂时待定，目前暂时不考虑
@@ -376,6 +384,8 @@ while True:
                             catch_order_LCJG='CATL'+aim_color
                         Move_Dis=int(aim_color)-Location_Now
                         Move_Color(Move_Dis)
+                        time.sleep(5)
+                        # 等待其移动到指定距离
                         Location_Now=int(aim_color)
                         '''
                         这里是否需要定位暂时待定
@@ -452,6 +462,8 @@ while True:
                             put_order_LZCQ='PUTH'+aim_color
                         Move_Dis=int(aim_color)-Location_Now
                         Move_Color(Move_Dis)
+                        time.sleep(5)
+                        # 等待其移动到指定距离
                         Location_Now=int(aim_color)
                         # 放置物料
                         send_order(put_order_LZCQ)

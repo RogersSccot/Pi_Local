@@ -276,6 +276,7 @@ while True:
                         if Judge_WLQ_material(find_aim_color(aim_color)):
                             # 抓取物料
                             send_order('CATH'+aim_color)
+                            time.sleep(5)
                             goods_num+=1
                         else:
                             time.sleep(0.1)
@@ -327,7 +328,7 @@ while True:
                         print(dis_error)
                         time.sleep(1)
                         # 发送定位指令
-                        send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(-0.07*Y_CJQ)+'Y'+order_deal(-0.07*X_CJQ))
                         time.sleep(5)
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     print("Begin_Put")
@@ -367,7 +368,7 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(-0.07*Y_CJQ)+'Y'+order_deal(-0.07*X_CJQ))
                                 # 等待车摆正
                                 time.sleep(5)
                             pass
@@ -407,7 +408,7 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[1,0]-320,circle_center[1,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(-0.07*Y_CJQ)+'Y'+order_deal(-0.07*X_CJQ))
                                 # 等待车摆正
                                 time.sleep(5)
                             pass
@@ -451,7 +452,7 @@ while True:
                         print(dis_error)
                         time.sleep(1)
                         # 发送定位指令
-                        send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                        send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(-0.07*Y_CJQ)+'Y'+order_deal(-0.07*X_CJQ))
                     # 此时已经定位完毕,开始放置物料,首先需要将车移动到正确的位置
                     # 记录下当前的位置
                     Location_Now=2
@@ -489,7 +490,7 @@ while True:
                                 X_CJQ,Y_CJQ=circle_center[2,0]-320,circle_center[2,1]-150
                                 dis_error=math.sqrt(X_CJQ**2+Y_CJQ**2)
                                 # 发送定位指令
-                                send_order('K'+order_deal(K_CJG)+'X'+order_deal(X_CJQ)+'Y'+order_deal(Y_CJQ))
+                                send_order('K'+order_deal(np.arctan(K_CJG))+'X'+order_deal(-0.07*Y_CJQ)+'Y'+order_deal(-0.07*X_CJQ))
                             pass
                         time.sleep(3)
 
